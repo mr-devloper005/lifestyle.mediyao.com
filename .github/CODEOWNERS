@@ -1,0 +1,7 @@
+# Logic and deployment surfaces require owner review.
+/Dockerfile @mr-devloper005
+/docker-compose.vps.yml @mr-devloper005
+/.github/workflows/ @mr-devloper005
+/src/lib/ @mr-devloper005
+/src/config/site.tasks.ts @mr-devloper005
+/src/config/site.identity.ts @mr-devloper005
