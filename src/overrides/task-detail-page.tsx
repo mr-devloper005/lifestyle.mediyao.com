@@ -66,9 +66,6 @@ export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: st
   const pageUrl = `${SITE_CONFIG.baseUrl.replace(/\/$/, '')}${buildPostUrl('mediaDistribution', post.slug)}`
   const shareText = encodeURIComponent(post.title)
   const shareUrl = encodeURIComponent(pageUrl)
-  const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-    : ''
 
   return (
     <div className="min-h-screen bg-white text-foreground">
@@ -94,12 +91,6 @@ export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: st
             <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold leading-[1.12] tracking-[-0.03em] text-foreground sm:text-4xl lg:text-[2.35rem]">
               {post.title}
             </h1>
-
-            {date ? (
-              <div className="mt-5 text-sm text-muted-foreground">
-                <span>{date}</span>
-              </div>
-            ) : null}
 
             <div className="mt-6 flex flex-wrap gap-2">
               <a
@@ -151,9 +142,9 @@ export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: st
             <RichContent html={html} className="article-content mt-10 max-w-none text-[1.05rem] leading-[1.75] text-foreground/90" />
           </div>
 
-          <aside className="space-y-6 lg:pt-2">
+          {/* <aside className="space-y-6 lg:pt-2">
             <div className="rounded-[1.25rem] border border-border bg-white p-6 shadow-sm">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">More releases</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground"></p>
               <ul className="mt-4 space-y-4">
                 {related.map((item) => (
                   <li key={item.id}>
@@ -164,7 +155,7 @@ export async function TaskDetailPageOverride({ slug }: { task: TaskKey; slug: st
                 ))}
               </ul>
             </div>
-          </aside>
+          </aside> */}
         </div>
       </article>
 

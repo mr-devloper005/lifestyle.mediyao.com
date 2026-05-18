@@ -40,9 +40,9 @@ const variantShells = {
   'sbm-library': 'bg-[linear-gradient(180deg,#F5C6A5/15_0%,#ffffff_100%)]',
 } as const
 
-export async function TaskListPage({ task, category }: { task: TaskKey; category?: string }) {
+export async function TaskListPage({ task, category, query }: { task: TaskKey; category?: string; query?: string }) {
   if (TASK_LIST_PAGE_OVERRIDE_ENABLED) {
-    return await TaskListPageOverride({ task, category })
+    return await TaskListPageOverride({ task, category, query })
   }
 
   const taskConfig = getTaskConfig(task)
@@ -90,6 +90,38 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
     <div className={`min-h-screen ${shellClass}`}>
       <NavbarShell />
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        {task === 'mediaDistribution' ? (
+          <section className="relative mb-10 overflow-hidden rounded-[2rem] border border-[#d7dae2] bg-[linear-gradient(135deg,#0f172a_0%,#1e293b_45%,#334155_100%)] p-8 text-white shadow-[0_28px_70px_rgba(15,23,42,0.35)] sm:p-10">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#f5c6a5]/20 blur-2xl" />
+            <div className="pointer-events-none absolute -bottom-20 left-10 h-56 w-56 rounded-full bg-[#60a5fa]/15 blur-2xl" />
+            <div className="relative grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">Media Wire</p>
+                <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
+                  Updates with a faster newsroom signal.
+                </h1>
+                <p className="mt-4 max-w-2xl text-sm leading-8 text-slate-200">
+                  Browse announcements with category focus and keyword search in one flow.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+                  <p className="text-2xl font-semibold">{posts.length}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-300">Total</p>
+                </div>
+                <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+                  <p className="text-2xl font-semibold">{CATEGORY_OPTIONS.length}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-300">Categories</p>
+                </div>
+                <div className="rounded-2xl border border-white/20 bg-white/10 p-4">
+                  <p className="text-2xl font-semibold">24/7</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-300">Coverage</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {task === 'listing' ? (
           <SchemaJsonLd
             data={[
@@ -238,7 +270,35 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {intro ? (
+        {task === 'mediaDistribution' ? (
+          <section className="mb-10 rounded-[1.5rem] border border-[#d7dae2] bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-6">
+            <form action="/updates" className="grid gap-3 sm:grid-cols-[1fr_220px_auto] sm:items-end">
+              <div>
+                <label htmlFor="updates-search" className="text-xs uppercase tracking-[0.2em] text-slate-500">Search updates</label>
+                <input
+                  id="updates-search"
+                  name="q"
+                  type="search"
+                  defaultValue={query || ''}
+                  placeholder="Search by title or summary"
+                  className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 placeholder:text-slate-400"
+                />
+              </div>
+              <div>
+                <label htmlFor="updates-category" className="text-xs uppercase tracking-[0.2em] text-slate-500">Category</label>
+                <select id="updates-category" name="category" defaultValue={normalizedCategory} className="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900">
+                  <option value="all">All categories</option>
+                  {CATEGORY_OPTIONS.map((item) => (
+                    <option key={item.slug} value={item.slug}>{item.name}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="h-11 rounded-xl bg-[#0f172a] px-5 text-sm font-medium text-white hover:bg-[#1e293b]">Search</button>
+            </form>
+          </section>
+        ) : null}
+
+        {intro && task !== 'mediaDistribution' ? (
           <section className={`mb-12 rounded-[2rem] p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] sm:p-8 ${ui.panel}`}>
             <h2 className="text-2xl font-semibold text-foreground">{intro.title}</h2>
             {intro.paragraphs.map((paragraph) => (
@@ -252,7 +312,9 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        <TaskListClient task={task} initialPosts={posts} category={normalizedCategory} />
+        <div className={task === 'mediaDistribution' ? 'rounded-[1.7rem] border border-[#d7dae2] bg-white p-5 shadow-[0_25px_60px_rgba(15,23,42,0.08)] sm:p-6' : ''}>
+          <TaskListClient task={task} initialPosts={posts} category={normalizedCategory} query={query} />
+        </div>
       </main>
       <Footer />
     </div>

@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         {/* Privacy Content */}
         <div className="space-y-8 mb-16">
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-            <p className="text-sm text-slate-500 mb-6">Last updated: March 16, 2026</p>
+            <p className="text-sm text-slate-500 mb-6"></p>
             
             <div className="space-y-6">
               {sections.map((section) => (

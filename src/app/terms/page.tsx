@@ -50,7 +50,7 @@ export default function TermsPage() {
         {/* Terms Content */}
         <div className="space-y-8 mb-16">
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
-            <p className="text-sm text-slate-500 mb-6">Last updated: March 16, 2026</p>
+            <p className="text-sm text-slate-500 mb-6"></p>
             
             <div className="space-y-6">
               {sections.map((section) => (
@@ -83,12 +83,6 @@ export default function TermsPage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-white font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
               >
                 Contact Legal Team
-              </Link>
-              <Link 
-                href="/support" 
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3 text-slate-700 font-semibold hover:border-slate-300 hover:bg-slate-50 transition-all"
-              >
-                Get Support
               </Link>
             </div>
           </div>

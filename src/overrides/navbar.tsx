@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Search, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/lib/auth-context'
 import { SITE_CONFIG } from '@/lib/site-config'
 import { siteContent } from '@/config/site.content'
 import { cn } from '@/lib/utils'
@@ -14,7 +15,7 @@ export const NAVBAR_OVERRIDE_ENABLED = true
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Latest News', href: '/updates' },
-  { label: 'Pricing', href: '/pricing' },
+  // { label: 'Pricing', href: '/pricing' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
@@ -22,13 +23,17 @@ const navLinks = [
 export function NavbarOverride() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
+  const { isAuthenticated, logout } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
 
         {/* Logo + name + tagline */}
-        <Link href="/" className="flex shrink-0 items-center whitespace-nowrap">
+        <Link href="/" className="flex shrink-0 items-center gap-3 whitespace-nowrap">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <img src="/favicon.png?v=20260518" alt={`${SITE_CONFIG.name} logo`} width="32" height="32" className="h-8 w-8 object-contain" />
+          </div>
           <div className="hidden sm:block">
             <span className="block text-[15px] font-bold leading-tight text-gray-900">
               {SITE_CONFIG.name}
@@ -61,7 +66,7 @@ export function NavbarOverride() {
           })}
         </div>
 
-        {/* Right: search + CTA */}
+        {/* Right: search + auth + CTA */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Button
             variant="ghost"
@@ -75,13 +80,34 @@ export function NavbarOverride() {
             </Link>
           </Button>
 
-          <Button
-            size="sm"
-            asChild
-            className="hidden rounded-full bg-[#6B4EFF] px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#5a3ee0] md:inline-flex"
-          >
-            <Link href="/contact">Submit Release</Link>
-          </Button>
+          <div className="hidden items-center gap-2 md:flex">
+            {!isAuthenticated ? (
+              <Button
+                size="sm"
+                asChild
+                className="rounded-full bg-[#5b46b2] px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#4b3993]"
+              >
+                <Link href="/login">Login</Link>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  asChild
+                  className="rounded-full bg-[#5b46b2] px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#4b3993]"
+                >
+                  <Link href="/create/mediaDistribution">Create Post</Link>
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={logout}
+                  className="rounded-full bg-[#2f2f38] px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-[#1f1f26]"
+                >
+                  Logout
+                </Button>
+              </>
+            )}
+          </div>
 
           {/* Mobile hamburger */}
           <Button
@@ -124,15 +150,31 @@ export function NavbarOverride() {
               )
             })}
             <div className="pt-2">
-              <Button
-                size="sm"
-                asChild
-                className="w-full rounded-full bg-[#6B4EFF] text-white hover:bg-[#5a3ee0]"
-              >
-                <Link href="/contact" onClick={() => setMobileOpen(false)}>
-                  Submit Release
-                </Link>
-              </Button>
+              {!isAuthenticated ? (
+                <Button size="sm" asChild className="w-full rounded-full bg-[#5b46b2] text-white hover:bg-[#4b3993]">
+                  <Link href="/login" onClick={() => setMobileOpen(false)}>
+                    Login
+                  </Link>
+                </Button>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button size="sm" asChild className="w-full rounded-full bg-[#5b46b2] text-white hover:bg-[#4b3993]">
+                    <Link href="/create/mediaDistribution" onClick={() => setMobileOpen(false)}>
+                      Create Post
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="w-full rounded-full bg-[#2f2f38] text-white hover:bg-[#1f1f26]"
+                    onClick={() => {
+                      logout()
+                      setMobileOpen(false)
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
