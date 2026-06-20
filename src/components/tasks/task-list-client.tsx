@@ -12,9 +12,10 @@ type Props = {
   task: TaskKey;
   initialPosts: SitePost[];
   category?: string;
+  query?: string;
 };
 
-export function TaskListClient({ task, initialPosts, category }: Props) {
+export function TaskListClient({ task, initialPosts, category, query }: Props) {
   const localPosts = getLocalPostsForTask(task);
 
   const merged = useMemo(() => {
@@ -34,28 +35,44 @@ export function TaskListClient({ task, initialPosts, category }: Props) {
     });
 
     const normalizedCategory = category ? normalizeCategory(category) : "all";
-    if (normalizedCategory === "all") {
-      return combined.filter((post) => {
-        const content = post.content && typeof post.content === "object" ? post.content : {};
-        const value = typeof (content as any).category === "string" ? (content as any).category : "";
-        return !value || isValidCategory(value);
-      });
-    }
+    const searchTerm = (query || "").trim().toLowerCase();
+    const filteredByCategory = normalizedCategory === "all"
+      ? combined.filter((post) => {
+          const content = post.content && typeof post.content === "object" ? post.content : {};
+          const value = typeof (content as any).category === "string" ? (content as any).category : "";
+          return !value || isValidCategory(value);
+        })
+      : combined.filter((post) => {
+          const content = post.content && typeof post.content === "object" ? post.content : {};
+          const value =
+            typeof (content as any).category === "string"
+              ? normalizeCategory((content as any).category)
+              : "";
+          return value === normalizedCategory;
+        });
 
-    return combined.filter((post) => {
+    if (!searchTerm) return filteredByCategory;
+
+    return filteredByCategory.filter((post) => {
       const content = post.content && typeof post.content === "object" ? post.content : {};
-      const value =
-        typeof (content as any).category === "string"
-          ? normalizeCategory((content as any).category)
-          : "";
-      return value === normalizedCategory;
+      const categoryValue = typeof (content as any).category === "string" ? (content as any).category : "";
+      const haystack = [
+        post.title,
+        post.summary,
+        post.slug,
+        categoryValue,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(searchTerm);
     });
-  }, [category, initialPosts, localPosts]);
+  }, [category, initialPosts, localPosts, query]);
 
   if (!merged.length) {
     return (
       <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-        No posts yet for this section.
+        No posts found for the selected category/search.
       </div>
     );
   }

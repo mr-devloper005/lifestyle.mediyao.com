@@ -28,7 +28,6 @@ export async function HomePageOverride() {
               <p className="text-center text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500">{String((featured.content as any)?.category || 'Latest')}</p>
               <h1 className="mx-auto mt-4 max-w-4xl text-center text-4xl font-black uppercase leading-tight tracking-[0.02em] sm:text-5xl">{featured.title}</h1>
               <div className="mt-4 flex items-center justify-center gap-3 text-sm text-neutral-500">
-                <span className="bg-neutral-800 px-3 py-1 text-white">{new Date(featured.publishedAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 <span>by {featured.authorName || 'Editorial Desk'}</span>
               </div>
               <p className="mx-auto mt-10 max-w-3xl text-lg leading-9 text-neutral-700">{excerpt(featured.summary)}</p>
@@ -44,7 +43,6 @@ export async function HomePageOverride() {
                 <p className="text-center text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500">{String((post.content as any)?.category || 'Update')}</p>
                 <h2 className="mx-auto mt-3 max-w-4xl text-center text-3xl font-black uppercase leading-tight tracking-[0.02em] sm:text-4xl">{post.title}</h2>
                 <div className="mt-4 flex items-center justify-center gap-3 text-sm text-neutral-500">
-                  <span className="bg-neutral-800 px-3 py-1 text-white">{new Date(post.publishedAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                   <span>by {post.authorName || 'Editorial Desk'}</span>
                 </div>
                 <p className="mx-auto mt-8 max-w-3xl text-lg leading-9 text-neutral-700">{excerpt(post.summary)}</p>

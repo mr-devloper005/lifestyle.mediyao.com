@@ -15,7 +15,7 @@ export default function CookiesPage() {
     >
       <Card className="border-border bg-card">
         <CardContent className="p-6 space-y-4">
-          <p className="text-xs text-muted-foreground">Last updated: March 16, 2026</p>
+          <p className="text-xs text-muted-foreground"></p>
           {sections.map((section) => (
             <div key={section.title} className="rounded-lg border border-border bg-secondary/40 p-4">
               <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>

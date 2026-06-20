@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120" viewBox="0 0 240 120">
+  <rect width="240" height="120" rx="16" fill="#ffffff"/>
+  <rect x="10" y="10" width="220" height="100" rx="12" fill="#fff6f6" stroke="#fbd0d0"/>
+  <rect x="34" y="38" width="42" height="42" fill="#ef4444"/>
+  <path d="M44 48h22v8H52v8h14v8H52v8h-8V48z" fill="#ffffff"/>
+  <text x="90" y="68" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#111827">Flipboard</text>
+</svg>

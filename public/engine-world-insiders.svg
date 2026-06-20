@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120" viewBox="0 0 240 120">
+  <rect width="240" height="120" rx="16" fill="#ffffff"/>
+  <rect x="10" y="10" width="220" height="100" rx="12" fill="#fff8f5" stroke="#ffd9c8"/>
+  <circle cx="46" cy="60" r="18" fill="none" stroke="#ef4444" stroke-width="3"/>
+  <path d="M34 60h24M46 48v24" stroke="#ef4444" stroke-width="3"/>
+  <text x="72" y="55" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#ef4444">WORLD</text>
+  <text x="72" y="74" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1f2937">INSIDERS</text>
+</svg>
