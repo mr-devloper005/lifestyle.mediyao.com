@@ -48,7 +48,7 @@ export default function ContactPage() {
               </div>
 
               {/* Contact Details */}
-              <div className="space-y-6">
+              {/* <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="rounded-full bg-blue-100 p-3 flex-shrink-0">
                     <Phone className="h-5 w-5 text-blue-600" />
@@ -65,9 +65,9 @@ export default function ContactPage() {
                     <Mail className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-1">Email</h3>
-                    <p className="text-slate-600">contact@mediavoxer.com</p>
-                    <p className="text-sm text-slate-500">24/7 Support</p>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-1"></h3>
+                    <p className="text-slate-600"></p>
+                    <p className="text-sm text-slate-500"></p>
                   </div>
                 </div>
 
@@ -81,7 +81,7 @@ export default function ContactPage() {
                     <p className="text-sm text-slate-500">By appointment only</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Office Hours */}
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg">
@@ -208,7 +208,7 @@ export default function ContactPage() {
       </section>
 
       {/* Map Section */}
-      <section className="px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24 bg-white">
+      {/* <section className="px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">Visit Our Office</h2>
@@ -227,7 +227,7 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <Footer />
     </div>

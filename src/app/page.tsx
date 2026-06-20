@@ -2,13 +2,14 @@ import type { Metadata } from 'next'
 
 import Link from 'next/link'
 
-import { ArrowRight, Bookmark, Building2, Compass, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, ShieldCheck, Tag, TrendingUp, User } from 'lucide-react'
+import { ArrowRight, Bookmark, Building2, FileText, Globe2, Image as ImageIcon, LayoutGrid, MapPin, ShieldCheck, Tag, TrendingUp, User } from 'lucide-react'
 
 import { ContentImage } from '@/components/shared/content-image'
 
 import { NavbarShell } from '@/components/shared/navbar-shell'
 
 import { Footer } from '@/components/shared/footer'
+import { FeaturedPostsSection } from '@/components/home/featured-posts-section'
 
 import { SchemaJsonLd } from '@/components/seo/schema-jsonld'
 
@@ -28,7 +29,6 @@ import { getProductKind, type ProductKind } from '@/design/factory/get-product-k
 
 import type { SitePost } from '@/lib/site-connector'
 
-import { getHomeEditorialMockPosts, mergeEditorialPostsForHome } from '@/lib/home-editorial-mock'
 
 import { HOME_PAGE_OVERRIDE_ENABLED, HomePageOverride } from '@/overrides/home-page'
 
@@ -154,6 +154,19 @@ function getPostImage(post?: SitePost | null) {
 
   return mediaUrl || contentImage || logo || '/placeholder.svg?height=900&width=1400'
 
+}
+
+function getPostImageOrNull(post?: SitePost | null) {
+  if (!post) return null
+  const media = Array.isArray(post.media) ? post.media : []
+  const mediaUrl = media.find((item) => typeof item?.url === 'string' && item.url)?.url
+  const contentImage = typeof post.content === 'object' && post.content && Array.isArray((post.content as any).images)
+    ? (post.content as any).images.find((url: unknown) => typeof url === 'string' && url)
+    : null
+  const logo = typeof post.content === 'object' && post.content && typeof (post.content as any).logo === 'string'
+    ? (post.content as any).logo
+    : null
+  return mediaUrl || contentImage || logo || null
 }
 
 
@@ -510,7 +523,6 @@ function EditorialHome({
   posts: SitePost[]
   supportTasks: EnabledTask[]
 }) {
-  const tone = getEditorialTone()
   const defaultEditorialTask: TaskKey =
     primaryTask?.key === 'mediaDistribution' || primaryTask?.key === 'article'
       ? primaryTask.key
@@ -519,307 +531,164 @@ function EditorialHome({
   const postHref = (post: SitePost) =>
     getTaskHref(resolveTaskKey((post as { task?: unknown }).task, defaultEditorialTask), post.slug)
 
-  const lead = posts[0]
-  const spotlightPosts = posts.slice(1, 4)
-  const deckPosts = posts.slice(10, 16)
-  const featuredSecondary = posts[1]
-
-  const headline = lead?.title || SITE_CONFIG.name
-  const summarySource = lead?.summary || SITE_CONFIG.description
-  const secondParagraph = summarySource
+  const featuredPosts = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    summary: post.summary,
+    href: postHref(post),
+    publishedAt: post.publishedAt,
+    image: getPostImageOrNull(post),
+  }))
 
   return (
-    <main className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-slate-900 min-h-screen">
-      <div className="w-full">
-        {/* Hero Section - New Layout */}
-        <section className="relative px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-indigo-600/10 to-purple-600/10" />
-            <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
-              style={{
-                backgroundImage: 'url("/press-release-hero.jpg")'
-              }}
-            />
-          </div>
-          <div className="relative max-w-7xl mx-auto">
-            <div className="grid gap-8 lg:gap-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-              <div className="text-left">
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 backdrop-blur px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-600 mb-8">
-                  <FileText className="h-4 w-4" />
-                  Global Press Release Distribution
-                </div>
-                <h1 className="font-sans text-5xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl mb-8">
-                  Amplify Your
-                  <br />
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Brand Story
-                  </span>
-                </h1>
-                <p className="text-xl leading-relaxed text-slate-600 mb-10 max-w-2xl">
-                  Connect with thousands of journalists and media outlets worldwide. 
-                  Professional press release distribution that delivers results.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link
-                    href={primaryTask?.route || '/articles'}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-4 text-white font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
-                  >
-                    Start Distribution
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
-                  <Link
-                    href="/pricing"
-                    className="inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-8 py-4 text-slate-700 font-bold hover:border-slate-300 hover:bg-slate-50 transition-all"
-                  >
-                    View Plans
-                  </Link>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="bg-white/80 backdrop-blur rounded-3xl p-8 shadow-2xl border border-slate-200">
-                  <div className="grid gap-8">
-                    <div className="text-center">
-                      <div className="text-4xl font-black text-blue-600 mb-2">50K+</div>
-                      <div className="text-sm font-medium text-slate-600">Press Releases</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-black text-indigo-600 mb-2">2.5K+</div>
-                      <div className="text-sm font-medium text-slate-600">Media Partners</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-black text-purple-600 mb-2">12K+</div>
-                      <div className="text-sm font-medium text-slate-600">Companies</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Services Section - New Component */}
-        <section className="bg-white py-20 sm:py-24 lg:py-32">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-sans text-4xl font-black leading-tight text-slate-900 sm:text-5xl mb-4">
-              Distribution
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                {" "}Services
-              </span>
-            </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Comprehensive press release distribution solutions tailored to your needs
+    <main className="bg-[#f3f3f5] text-[#1f2330]">
+      <section className="relative overflow-hidden bg-[#11151d]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(162,65,107,0.28),transparent_40%),radial-gradient(circle_at_85%_12%,rgba(245,198,165,0.2),transparent_33%)]" />
+        <div className="absolute inset-0 bg-cover bg-center opacity-30" style={{ backgroundImage: 'url("/press-release-hero.jpg")' }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0e121a]/90 via-[#0f1420]/78 to-[#0f1420]/66" />
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-18 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24">
+          <div className="mw-fade-up">
+            <h1 className="mt-7 max-w-4xl text-5xl font-semibold leading-[0.98] tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl">
+              Press Release
+              <span className="block text-[#f5c6a5]">Distribution Network</span>
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-200">
+              Publish with confidence to premium media surfaces and amplify your brand across trusted editorial channels.
             </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 transition-all hover:shadow-xl hover:border-blue-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Globe2 className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="font-sans text-2xl font-bold text-slate-900 mb-4">Global Reach</h3>
-              <p className="text-slate-600 leading-relaxed mb-6">
-                Distribute your press releases to thousands of media outlets worldwide with our global network.
-              </p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700">
-                Learn More
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-indigo-50 to-purple-50 p-8 transition-all hover:shadow-xl hover:border-indigo-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <ShieldCheck className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="font-sans text-2xl font-bold text-slate-900 mb-4">Premium Placement</h3>
-              <p className="text-slate-600 leading-relaxed mb-6">
-                Get premium placement on major news sites and industry publications with verified distribution.
-              </p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700">
-                Learn More
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-purple-50 to-pink-50 p-8 transition-all hover:shadow-xl hover:border-purple-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="font-sans text-2xl font-bold text-slate-900 mb-4">Analytics & Insights</h3>
-              <p className="text-slate-600 leading-relaxed mb-6">
-                Track your press release performance with detailed analytics and real-time insights.
-              </p>
-              <Link href="/about" className="inline-flex items-center gap-2 text-purple-600 font-semibold hover:text-purple-700">
-                Learn More
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-          </div>
-        </section>
-
-        {/* Featured Press Release - Redesigned */}
-        {lead ? (
-          <section className="bg-gradient-to-br from-slate-50 to-blue-50 py-20 sm:py-24 lg:py-32">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="font-sans text-4xl font-black leading-tight text-slate-900 sm:text-5xl mb-4">
-                Featured
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  {" "}Release
-                </span>
-              </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                Latest announcements from leading organizations
-              </p>
-            </div>
-            <div className="max-w-5xl mx-auto">
+            <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                href={postHref(lead)}
-                className="group block rounded-3xl bg-white p-10 shadow-2xl border border-slate-200 transition-all hover:shadow-3xl hover:border-blue-300"
+                href="/updates"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#ffc730] px-8 py-4 text-base font-semibold text-[#1a1f2a] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#ffd550]"
               >
-                <div className="flex flex-col lg:flex-row gap-8">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-6">
-                      <span className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white">
-                        Press Release
-                      </span>
-                      <span className="text-sm font-medium text-slate-500">
-                        {lead.publishedAt ? new Date(lead.publishedAt).toLocaleDateString() : ''}
-                      </span>
-                    </div>
-                    <h3 className="font-sans text-3xl font-black leading-tight text-slate-900 mb-6 group-hover:text-blue-600 transition-colors">
-                      {lead.title}
-                    </h3>
-                    {lead.summary ? (
-                      <p className="text-lg leading-relaxed text-slate-600 mb-8">{lead.summary}</p>
-                    ) : null}
-                    <div className="flex items-center gap-3 text-blue-600 font-bold">
-                      Read Full Release
-                      <ArrowRight className="h-5 w-5" />
-                    </div>
-                  </div>
-                  <div className="lg:w-96">
-                    <div className="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl h-64 flex items-center justify-center">
-                      <FileText className="h-16 w-16 text-blue-600/50" />
-                    </div>
-                  </div>
-                </div>
+                Browse Press Release
               </Link>
             </div>
+          </div>
+          <div className="mw-fade-up-delayed rounded-[2rem] border border-white/16 bg-white/10 p-7 shadow-[0_35px_90px_rgba(0,0,0,0.42)] backdrop-blur">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-200">Performance Highlights</p>
+            <div className="mt-5 grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+              <div className="rounded-2xl border border-white/14 bg-black/15 p-5">
+                <p className="text-4xl font-semibold text-white">150+</p>
+                <p className="mt-1 text-sm text-slate-200">Syndication outlets</p>
+              </div>
+              <div className="rounded-2xl border border-white/14 bg-black/15 p-5">
+                <p className="text-4xl font-semibold text-white">24h</p>
+                <p className="mt-1 text-sm text-slate-200">Average publication cycle</p>
+              </div>
+              <div className="rounded-2xl border border-white/14 bg-black/15 p-5">
+                <p className="text-4xl font-semibold text-white">98%</p>
+                <p className="mt-1 text-sm text-slate-200">Client satisfaction score</p>
+              </div>
             </div>
-          </section>
-        ) : null}
+          </div>
+        </div>
+      </section>
 
-        {/* Recent Press Releases - New Grid Layout */}
-        {spotlightPosts.length ? (
-          <section className="bg-white py-20 sm:py-24 lg:py-32">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="font-sans text-4xl font-black leading-tight text-slate-900 sm:text-5xl mb-4">
-                Recent
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  {" "}Releases
-                </span>
-              </h2>
-              <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-                Stay updated with the latest announcements and media updates
-              </p>
+      <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#6b7280]">Online Press Release Distribution</p>
+          <h2 className="mt-5 text-4xl font-semibold tracking-[-0.04em] text-[#1f2330] sm:text-5xl">Press Release Distribution Service</h2>
+        </div>
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {[
+            {
+              title: 'Traditional Newsroom',
+              text: 'A clean media newsroom where news, events, and company updates live in one consistent publishing flow.',
+            },
+            {
+              title: 'PR Distribution',
+              text: 'Publish to 150+ media platforms and put your story in front of journalists, editors, and search audiences.',
+            },
+            {
+              title: 'Press Release Packages',
+              text: 'Get placement, promotion, and actionable dashboard analytics with package-based distribution options.',
+            },
+          ].map((service) => (
+            <div key={service.title} className="mw-fade-up rounded-3xl border border-[#d6d9e0] bg-white p-8 shadow-[0_22px_45px_rgba(16,24,40,0.08)]">
+              <h3 className="text-2xl font-semibold tracking-[-0.02em] text-[#1f2330]">{service.title}</h3>
+              <p className="mt-4 text-[15px] leading-8 text-[#4b5568]">{service.text}</p>
+              <Link href="/about" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#852747] hover:text-[#a2416b]">
+                Learn more
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {spotlightPosts.map((post, i) => (
-                <Link
-                  key={post.id}
-                  href={postHref(post)}
-                  className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-blue-50 p-8 transition-all hover:shadow-xl hover:border-blue-300 hover:scale-[1.02]"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
-                      Press Release
-                    </span>
-                    <span className="text-sm font-medium text-slate-500">
-                      {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}
-                    </span>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-[#e4e4e7] py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div>
+            <h3 className="text-4xl font-semibold tracking-[-0.03em] text-[#1f2330]">Press Release Distribution Sites</h3>
+            <p className="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-[#6b7280]">The place where your press release gets distributed</p>
+            <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
+              {[
+                { name: 'Google News', image: '/engine-google-news.svg' },
+                { name: 'Bing', image: '/engine-bing.svg' },
+                { name: 'Flipboard', image: '/engine-flipboard.svg' },
+                { name: 'Buzz Reporter', image: '/engine-buzz-reporter.svg' },
+                { name: 'World Insiders', image: '/engine-world-insiders.svg' },
+                { name: 'NewsNet', image: '/engine-newsnet.svg' },
+              ].map((engine) => (
+                <div key={engine.name} className="group rounded-2xl border border-white/80 bg-white/80 p-3 text-center shadow-[0_12px_24px_rgba(17,24,39,0.08)] transition-transform hover:-translate-y-1">
+                  <div className="overflow-hidden rounded-xl border border-[#d7dae2] bg-white">
+                    <div className="relative h-20">
+                      <ContentImage src={engine.image} alt={engine.name} fill className="object-contain p-1" />
+                    </div>
                   </div>
-                  <h3 className="font-sans text-xl font-bold leading-tight text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">
-                    {post.title}
-                  </h3>
-                  {post.summary ? (
-                    <p className="text-sm leading-relaxed text-slate-600 line-clamp-3 mb-6">{post.summary}</p>
-                  ) : null}
-                  <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
-                    Read More
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                </Link>
+                  <p className="mt-3 text-sm font-semibold text-[#2f3545]">{engine.name}</p>
+                </div>
               ))}
             </div>
-            </div>
-          </section>
-        ) : null}
+          </div>
+        </div>
+      </section>
 
-        {/* Trust Section - New Component */}
-        <section className="bg-gradient-to-br from-blue-600 to-indigo-600 py-20 sm:py-24 lg:py-32">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-sans text-4xl font-black leading-tight text-white sm:text-5xl mb-4">
-              Trusted by
-              <span className="text-yellow-300">
-                {" "}Industry Leaders
-              </span>
-            </h2>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
-              Join thousands of organizations that trust Mediavoxer for their press release distribution
-            </p>
-          </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="text-center">
-              <div className="text-5xl font-black text-white mb-2">98%</div>
-              <div className="text-sm font-medium text-blue-100">Client Satisfaction</div>
+      <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
+        <div className="rounded-[2rem] border border-[#d7dae2] bg-white p-8 shadow-[0_30px_70px_rgba(19,28,46,0.08)] sm:p-12">
+          <div className="grid gap-8 lg:grid-cols-[220px_1fr] lg:items-center">
+            <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-full border-8 border-[#0f4ea8] bg-[#0757be] text-center text-white shadow-[0_20px_50px_rgba(15,78,168,0.32)]">
+              <div>
+                <p className="text-4xl font-semibold">100%</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em]">Satisfaction</p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-5xl font-black text-white mb-2">24/7</div>
-              <div className="text-sm font-medium text-blue-100">Support Available</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-black text-white mb-2">150+</div>
-              <div className="text-sm font-medium text-blue-100">Countries Reached</div>
-            </div>
-            <div className="text-center">
-              <div className="text-5xl font-black text-white mb-2">10M+</div>
-              <div className="text-sm font-medium text-blue-100">Media Impressions</div>
+            <div>
+              <h3 className="text-4xl font-semibold tracking-[-0.03em] text-[#1f2330]">Guaranteed News Distribution with Media Coverage</h3>
+              <p className="mt-5 text-lg leading-8 text-[#4b5568]">
+                Your press release appears in premium publications and trusted aggregators, with guaranteed media partner delivery.
+              </p>
+              <p className="mt-3 text-lg leading-8 text-[#4b5568]">
+                Get syndicated visibility across Google News, Bing News, and partner websites for strong search and media discoverability.
+              </p>
             </div>
           </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
-        {/* CTA Section - Redesigned */}
-        <section className="bg-gradient-to-br from-slate-900 to-slate-800 py-20 sm:py-24 lg:py-32">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="font-sans text-4xl font-black leading-tight text-white sm:text-5xl mb-6">
-              Ready to Amplify Your Message?
-            </h2>
-            <p className="text-xl text-slate-300 max-w-3xl mx-auto mb-12">
-              Start distributing your press releases today and reach millions of readers worldwide
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link
-                href="/pricing"
-                className="inline-flex items-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-10 py-5 text-white font-black hover:from-blue-700 hover:to-indigo-700 transition-all shadow-2xl hover:shadow-3xl text-lg"
-              >
-                Get Started Now
-                <ArrowRight className="h-6 w-6" />
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-3 rounded-xl border-2 border-white/30 bg-white/10 px-10 py-5 text-white font-bold hover:bg-white/20 hover:border-white/50 transition-all text-lg"
-              >
-                Schedule Demo
-              </Link>
-            </div>
+      <section className="mx-auto max-w-7xl px-4 pb-18 sm:px-6 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-1">
+          <div className="rounded-[2rem] border border-[#d7dae2] bg-white p-8 shadow-[0_22px_55px_rgba(16,24,40,0.07)]">
+            <h3 className="text-4xl font-semibold tracking-[-0.03em] text-[#1f2330]">Getting Published on Our Sites</h3>
+            <ul className="mt-7 space-y-4 text-lg leading-8 text-[#41495b]">
+              <li className="flex items-start gap-3">
+                <ShieldCheck className="mt-1 h-5 w-5 text-[#0f7f4a]" />
+                Syndication into a broad online media network with strong PR visibility.
+              </li>
+              <li className="flex items-start gap-3">
+                <ShieldCheck className="mt-1 h-5 w-5 text-[#0f7f4a]" />
+                Distribution to newsroom, news engines, and long-term indexed placements.
+              </li>
+              <li className="flex items-start gap-3">
+                <ShieldCheck className="mt-1 h-5 w-5 text-[#0f7f4a]" />
+                Ongoing analytics to monitor reach, placements, and discovery performance.
+              </li>
+            </ul>
           </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      <FeaturedPostsSection posts={featuredPosts} />
     </main>
   )
 }
@@ -874,13 +743,7 @@ export default async function HomePage() {
 
   const editorialRaw = articlePosts.length ? articlePosts : mediaDistributionPosts
 
-  const editorialPosts =
-
-    editorialRaw.length > 0
-
-      ? editorialRaw.slice(0, 16)
-
-      : mergeEditorialPostsForHome(editorialRaw, getHomeEditorialMockPosts(), 16)
+  const editorialPosts = editorialRaw.slice(0, 16)
 
   const imagePosts = taskFeed.find(({ task }) => task.key === 'image')?.posts || []
 
